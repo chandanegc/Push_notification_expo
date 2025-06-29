@@ -9,6 +9,11 @@ app.use(express.json());
 // In production, use a database to store tokens
 const tokens = [];
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Endpoint to register tokens
 app.post('/register-token', (req, res) => {
   const { token } = req.body;
