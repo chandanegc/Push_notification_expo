@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "828107852345",
+    "project_id": "chandan-20881",
+    "storage_bucket": "chandan-20881.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828107852345:android:e96d69402a45bb8ccc9be8",
+        "android_client_info": {
+          "package_name": "com.pushnotificationdemo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdLQqDzY38G_VwHNwVtXo-3OGwNkBdboU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

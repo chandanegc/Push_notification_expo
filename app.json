@@ -1,22 +1,31 @@
 {
   "expo": {
     "name": "PushNotificationDemo",
-    "slug": "PushNotificationDemo",
+    "slug": "my-new-project",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "pushnotificationdemo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "eas": {
+        "projectId": "373e6318-e59c-4d4c-a147-1db7d9703d06"
+      },
+      "router": {}
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.chandanegc.PushNotificationDemo",
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true,
+      "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
+      }
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +42,19 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": ["./assets/notification-sound.wav"]
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "chandanegc"
   }
 }

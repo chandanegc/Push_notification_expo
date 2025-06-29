@@ -1,57 +1,88 @@
-// server.js
 const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const { Expo } = require('expo-server-sdk');
+
 const app = express();
 const expo = new Expo();
 
-app.use(express.json());
+app.use(cors());
+app.use(bodyParser.json());
 
-// In production, use a database to store tokens
-const tokens = [];
+let savedPushTokens = [];
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Endpoint to register tokens
-app.post('/register-token', (req, res) => {
-  const { token } = req.body;
-  if (!Expo.isExpoPushToken(token)) {
-    return res.status(400).json({ error: 'Invalid token' });
+app.post('/save-token', (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ error: 'Token is required' });
+    }
+    
+    if (!savedPushTokens.includes(token)) {
+      savedPushTokens.push(token);
+    }
+    
+    res.status(200).json({ success: true, message: 'Token saved successfully' });
+  } catch (error) {
+    console.error('Error saving token:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  if (!tokens.includes(token)) {
-    tokens.push(token);
-  }
-  res.json({ success: true });
 });
 
-// Endpoint to send to all devices
-app.post('/send-to-all', async (req, res) => {
-  const { title, body } = req.body;
-  
-  const messages = tokens.map(token => ({
-    to: token,
-    sound: 'default',
-    title: title || 'Hello!',
-    body: body || 'This is a notification to all users',
-    data: { withSome: 'data' },
-  }));
-
+app.post('/send-notification', async (req, res) => {
   try {
+    const { title, body } = req.body;
+    
+    if (!title || !body) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Title and body are required' 
+      });
+    }
+
+    const messages = savedPushTokens
+      .filter(token => Expo.isExpoPushToken(token))
+      .map(token => ({
+        to: token,
+        sound: 'default',
+        title,
+        body,
+        data: { withSome: 'data' },
+      }));
+
     const chunks = expo.chunkPushNotifications(messages);
     const tickets = [];
     
     for (const chunk of chunks) {
-      const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-      tickets.push(...ticketChunk);
+      try {
+        const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        tickets.push(...ticketChunk);
+      } catch (chunkError) {
+        console.error('Error sending chunk:', chunkError);
+      }
     }
     
-    res.json({ success: true, tickets });
+    res.status(200).json({ 
+      success: true, 
+      tickets,
+      sentTo: savedPushTokens.length
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error in send-notification:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to send notifications' 
+    });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
